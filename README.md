@@ -1,4 +1,4 @@
-# subtitles
+# AI-subtitles-generator
 A Saas application which generates subtitles in multiple language.
 
 ### Architecture
