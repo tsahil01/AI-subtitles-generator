@@ -44,6 +44,7 @@ export default function Home() {
       });
 
       if (uploadResponse.ok) {
+        console.log(uploadResponse)
         setMessage("Upload successful!");
         setFile(null); // Reset the file input if needed
       } else {

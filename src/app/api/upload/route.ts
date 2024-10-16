@@ -16,7 +16,13 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const client = new S3Client({ region: process.env.AWS_REGION });
+        const client = new S3Client({
+            region: process.env.AWS_REGION!,
+            credentials: {
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+                secretAccessKey: process.env.AWS_SECRET!,
+            },
+        });
 
         const { url, fields } = await createPresignedPost(client, {
             Bucket: process.env.AWS_BUCKET_NAME!,
@@ -26,8 +32,10 @@ export async function GET(req: NextRequest) {
                 acl: "public-read",
                 "Content-Type": contentType,
             },
-            Expires: 600,
+            Expires: 3600,
         });
+
+        console.log("Presigned URL:", url);
 
         return NextResponse.json({ url, fields });
     } catch (error: any) {
