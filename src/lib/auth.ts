@@ -5,14 +5,15 @@ import prisma from "./db";
 
 export const NEXTAUTH_CONFIG = {
     providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-        }),
+        // GoogleProvider({
+        //     clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+        //     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+        // }),
         // GitHubProvider({
         //     clientId: process.env.GITHUB_ID ?? "",
         //     clientSecret: process.env.GITHUB_SECRET ?? "",
         // }),
+
     ],
     secret: process.env.NEXTAUTH_SECRET,
 
@@ -32,18 +33,22 @@ export const NEXTAUTH_CONFIG = {
                 token.accessToken = account.access_token;
 
                 // Store user details including the access token in your database.
-                const user = await prisma.user.upsert({
-                    where: { email: token.email },
-                    update: { accessTokens: token.accessToken },
-                    create: {
-                        email: token.email,
-                        name: token.name,
-                        provider: account.provider,
-                        accessTokens: token.accessToken,
-                        isAdmin: false
-                    },
-                });
-                token.isAdmin = user.isAdmin;
+                const user = await prisma.user.upsert(
+                    {
+                        where: {
+                            id: token.userId
+                        },
+                        update: {
+                            accessTokens: token.accessToken,
+
+                        },
+                        create: {
+                            web3Address: token.web3Address,
+                            accessTokens: token.accessToken,
+                        }
+                    }
+                );
+                // token.isAdmin = false;
                 token.userId = user.id;
                 // console.log("user", user);
             }
