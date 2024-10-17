@@ -15,8 +15,7 @@ datasource db {
 
 model User {
   id            String         @id @default(cuid())
-  web3Address   String
-  accessTokens  String
+  web3Address   String        @unique
   premium       Boolean        @default(false)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
