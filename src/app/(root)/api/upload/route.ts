@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { getServerSession } from "next-auth";
+import { NEXTAUTH_CONFIG } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+
+    const session = await getServerSession(NEXTAUTH_CONFIG);
+    const userId = session?.userId;
     const { searchParams } = new URL(req.url);
     const filename = searchParams.get("filename");
     const contentType = searchParams.get("contentType");
+
+    if (!userId) {
+        return NextResponse.json(
+            { error: "You must be logged in to upload files" },
+            { status: 401 }
+        );
+    }
 
     // Check if filename and contentType are provided
     if (!filename || !contentType) {
@@ -26,7 +38,7 @@ export async function GET(req: NextRequest) {
 
         const { url, fields } = await createPresignedPost(client, {
             Bucket: process.env.AWS_BUCKET_NAME!,
-            Key: filename,
+            Key: `${userId}/${filename}`,
             Conditions: [["starts-with", "$Content-Type", contentType]],
             Fields: {
                 acl: "public-read",

@@ -89,7 +89,6 @@ export const NEXTAUTH_CONFIG = {
         },
 
         async session({ session, token }: any) {
-            session.accessToken = token.accessToken;
             session.userId = token.userId;
             session.web3Address = token.web3Address;
             // console.log("session", session, token);
