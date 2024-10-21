@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
         const { url, fields } = await createPresignedPost(client, {
             Bucket: process.env.AWS_BUCKET_NAME!,
-            Key: `${userId}/${filename}`,
+            Key: `${userId}/${filename}/${filename}`,
             Conditions: [["starts-with", "$Content-Type", contentType]],
             Fields: {
                 acl: "public-read",
