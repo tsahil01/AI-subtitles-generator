@@ -51,7 +51,7 @@ model File {
   name      String
   url       String
   type      String
-  size      Int
+  size      Int?
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
