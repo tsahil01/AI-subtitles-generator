@@ -17,12 +17,13 @@ export default function Home() {
       return;
     }
 
+    const sanitizedFileName = file.name.replace(/\s+/g, "_");
     setUploading(true);
     setMessage("Uploading...");
 
     try {
       const response = await fetch(
-        `/api/upload?filename=${file.name}&contentType=${file.type}`
+        `/api/upload?filename=${sanitizedFileName}&contentType=${file.type}`
       );
 
       if (!response.ok) {
