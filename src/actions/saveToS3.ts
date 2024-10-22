@@ -19,14 +19,14 @@ export async function saveToS3(formData: FormData, presignedUrl: string) {
         const url = await `${CLOUDFRONT_URL}/${key}`;
 
         const dbSave = await saveToDb(url, `${fileName}`, `${fileContentType}`);
-        if (!dbSave) {
+        if (dbSave === null) {
             console.error("Failed to save file to database");
             return false;
         }
-        if (dbSave) {
+        if (dbSave !== null) {
             console.log("File saved to database");
             // @ts-ignore
-            await processFile(key.toString())
+            await processFile(key.toString(), dbSave.id);
         }
         console.log("Uploaded Url: ", formData.get("key"));
 
