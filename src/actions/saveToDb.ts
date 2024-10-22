@@ -22,13 +22,13 @@ export async function saveToDb(fileUrl: string, fileName: string, fileContentTyp
         });
         if (!addFile) {
             console.log("Failed to save file to database");
-            return false;
+            return null;
         }
         console.log("File saved to database:", addFile);
-        return true;
+        return addFile;
 
     } catch (error: any) {
         console.error("Error saving file to database:", error);
-        return false;
+        return null;
     }
 }
