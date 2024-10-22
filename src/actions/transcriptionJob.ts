@@ -1,5 +1,6 @@
 "use server";
 
+import prisma from '@/lib/db';
 // const AWS = require('aws-sdk');
 import TranscribeService from 'aws-sdk/clients/transcribeservice';
 
@@ -10,7 +11,7 @@ const transcribeService = new TranscribeService({
   region: `${process.env.AWS_REGION}`,
 });
 
-export async function processFile(fileNamePath: string) {
+export async function processFile(fileNamePath: string, fileDbId: string) {
   const user = fileNamePath.split('/')[0];
   const jobName = user + '-' + Date.now();
 
@@ -18,9 +19,16 @@ export async function processFile(fileNamePath: string) {
   const OutputFilePath = fileNamePath.split('/').slice(0, 2).join('-');
   const outputFolder = `transcription-results/${OutputFilePath}/`;
 
+  console.log("User:", user);
+  console.log("Job name:", jobName);
+  console.log("Media format:", mediaFormat);
+  console.log("Output file path:", OutputFilePath);
+  console.log("Output folder:", outputFolder);
+
   const params = {
     TranscriptionJobName: jobName,
-    LanguageCode: 'en-US',
+    // english language code
+    LanguageCode: 'en-IN',
     MediaFormat: mediaFormat,
     Media: {
       MediaFileUri: `s3://${S3_BUCKET}/${fileNamePath}`,
@@ -30,20 +38,33 @@ export async function processFile(fileNamePath: string) {
 
     Settings: {
       ChannelIdentification: false,
-      MaxSpeakerLabels: 5,
+      MaxSpeakerLabels: 4,
       ShowAlternatives: false,
       ShowSpeakerLabels: true,
     },
     Subtitles: {
       Formats: ['srt', 'vtt'],
-    }
+    },
   };
 
   try {
     await transcribeService.startTranscriptionJob(params).promise();
     console.log(`Started transcription job: ${jobName}`);
     // do db update here
+    const saveTranscription = await prisma.subtitlesFile.create({
+      data: {
+        name: OutputFilePath,
+        url: `${CLOUDFRONT_URL}/${outputFolder}${jobName}`,
+        transcriptionJobName: jobName,
+        fileId: fileDbId,
+      }
+    })
 
+    if (!saveTranscription) {
+      console.error("Failed to save transcription to database");
+      return false;
+    }
+    console.log("Transcription saved to database: ", saveTranscription);
     await checkTranscriptionJob(jobName);
   } catch (error) {
     console.error("Transcription job error:", error);
