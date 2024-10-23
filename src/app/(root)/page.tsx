@@ -1,8 +1,12 @@
 "use client";
 
+import { TopBar } from "@/components/TopBar";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletDisconnectButton, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import {
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function Home() {
@@ -22,8 +26,8 @@ export default function Home() {
 
     const signatureArray = new Uint8Array(signature);
     const signatureHex = Array.from(signatureArray)
-      .map(byte => byte.toString(16).padStart(2, '0'))
-      .join('');
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
 
     console.log("Signature:", signatureHex);
     console.log("Public Key:", publicKey.toString());
@@ -37,20 +41,17 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <h1 className="text-6xl font-bold">
-        Welcome to <a className="text-blue-600" href="https://nextjs.org">Next.js!</a>
-      </h1>
-      <div>
-        <WalletMultiButton />
-        <WalletDisconnectButton />
-        <Button onClick={() => signAndSend()}>Sign In with Wallet</Button> {/* Added button */}
-        <Button onClick={() => {
-          signOut();
-          disconnect();
-          }}>Sign Out</Button>
+    <>
+      {/* {JSON.stringify(session)} */}
+      <div className="flex w-full mx-auto">
+        <TopBar />
+        {/* <div> */}
+        {/* <WalletMultiButton /> */}
+        {/* <WalletDisconnectButton /> */}
+        {/* <Button onClick={() => signAndSend()}>Sign In with Wallet</Button> Added button */}
+        {/* <Button onClick={() => { signOut(); disconnect(); }}>Sign Out</Button> */}
+        {/* </div> */}
       </div>
-      {JSON.stringify(session)}
-    </div>
+    </>
   );
 }
