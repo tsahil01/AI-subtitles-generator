@@ -1,5 +1,6 @@
 "use client";
 
+import { saveToS3 } from "@/actions/saveToS3";
 import React from "react";
 
 export default function Home() {
@@ -16,12 +17,13 @@ export default function Home() {
       return;
     }
 
+    const sanitizedFileName = file.name.replace(/\s+/g, "_");
     setUploading(true);
     setMessage("Uploading...");
 
     try {
       const response = await fetch(
-        `/api/upload?filename=${file.name}&contentType=${file.type}`
+        `/api/upload?filename=${sanitizedFileName}&contentType=${file.type}`
       );
 
       if (!response.ok) {
@@ -30,7 +32,7 @@ export default function Home() {
         return;
       }
 
-      const { url, fields } = await response.json();
+      const { url, fields } = await response.json(); // Get the pre-signed URL and fields
 
       const formData = new FormData();
       Object.entries(fields).forEach(([key, value]) => {
@@ -38,15 +40,14 @@ export default function Home() {
       });
       formData.append("file", file);
 
-      const uploadResponse = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
+      const uploadResponse = await saveToS3(formData, url); // Upload the file to S3
 
-      if (uploadResponse.ok) {
-        console.log(uploadResponse)
+      if (uploadResponse) {
+        console.log(uploadResponse);
         setMessage("Upload successful!");
         setFile(null); // Reset the file input if needed
+        // Save the file URL to a database or use it in your app
+
       } else {
         console.error("S3 Upload Error:", uploadResponse);
         setMessage("Upload failed.");
@@ -88,7 +89,8 @@ export default function Home() {
                     setFile(files[0]);
                   }
                 }}
-                accept="image/png, image/jpeg, image/jpg"
+                // accept="video, audio only"
+                accept="video/*, audio/*"
               />
               <button
                 className="flex-none rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
