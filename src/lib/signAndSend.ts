@@ -1,4 +1,4 @@
-export async function signAndSend(publicKey: any, signMessage: any, signIn: any, signOut: any, disconnect: any, session: any, toast: any) {
+export async function signAndSend(publicKey: any, signMessage: any, signIn: any, signOut: any, toast: any) {
     if (!publicKey || !signMessage) return;
 
     try {

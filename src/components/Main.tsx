@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clock, Globe, Wallet, Zap } from "lucide-react";
+import { ArrowRight, Clock, Globe, Subtitles, Wallet, Zap } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -23,8 +23,6 @@ export function Main() {
         signIn,
         signOut,
         disconnect,
-        session,
-        toast
       );
     } catch (error) {
       console.error("Sign in failed", error);
@@ -72,9 +70,9 @@ export function Main() {
           </h2>
           <div className="grid gap-8 md:grid-cols-3">
             <FeatureCard
-              icon={<Globe className="h-10 w-10 text-primary" />}
-              title="Multi-language Support"
-              description="Generate subtitles in over 50 languages with high accuracy."
+              icon={<Subtitles className="h-10 w-10 text-primary" />}
+              title="Get SRT & VTT Files"
+              description="Download subtitles in SRT and VTT formats for easy integration."
             />
             <FeatureCard
               icon={<Zap className="h-10 w-10 text-yellow-500" />}
