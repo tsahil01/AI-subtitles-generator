@@ -47,7 +47,7 @@ export function Main() {
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             Create accurate subtitles for your videos in seconds. Powered by
             advanced AI and secured by{" "}
-            <span className="text-black">Solana Blockchain</span>
+            <span className="text-black underline">Solana Blockchain</span>
           </p>
           <div className="mt-10 flex justify-center gap-4">
             <Button size="lg" asChild>
