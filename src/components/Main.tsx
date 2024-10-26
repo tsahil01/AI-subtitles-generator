@@ -7,6 +7,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { signAndSend } from "@/lib/signAndSend";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { FlipWords } from "./ui/flip-words";
 
 export function Main() {
   const { publicKey, signMessage, disconnect } = useWallet();
@@ -17,13 +18,7 @@ export function Main() {
   const handleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signAndSend(
-        publicKey,
-        signMessage,
-        signIn,
-        signOut,
-        disconnect,
-      );
+      await signAndSend(publicKey, signMessage, signIn, signOut, disconnect);
     } catch (error) {
       console.error("Sign in failed", error);
       toast({
@@ -41,8 +36,11 @@ export function Main() {
       <section className="py-12 md:py-24 lg:py-32 xl:py-48">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            <span className="block text-primary">AI-Powered</span>
-            <span className="block">Subtitle Generation</span>
+            <span className="block text-primary">Generate AI-Powered</span>
+            <span className="block text-primary">
+              <FlipWords words={["Subtitles", "Transcriptions"]} duration={2000} />
+            </span>
+
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             Create accurate subtitles for your videos in seconds. Powered by

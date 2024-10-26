@@ -5,20 +5,20 @@ import { processFile } from "./transcriptionJob";
 
 const CLOUDFRONT_URL = process.env.CLOUDFRONT_URL;
 
-export async function saveToS3(formData: FormData, presignedUrl: string) {
+export async function saveToS3(formData: FormData, presignedUrl: string, fileName: string, audioType: string) {
     const response = await fetch(presignedUrl, {
         method: "POST",
         body: formData,
     });
 
     if (response.ok) {
-        const key = formData.get("key");
+        const key = formData.get("key") || "unknown";
         console.log("Key: ", key);
-        const fileName = key ? key.toString().split("/").pop() : "unknown";
+
         const fileContentType = formData.get("Content-Type") || "unknown";
         const url = await `${CLOUDFRONT_URL}/${key}`;
 
-        const dbSave = await saveToDb(url, `${fileName}`, `${fileContentType}`);
+        const dbSave = await saveToDb(url, `${fileName}`, `${fileContentType}`, audioType, key.toString());
         if (dbSave === null) {
             console.error("Failed to save file to database");
             return false;
@@ -26,7 +26,8 @@ export async function saveToS3(formData: FormData, presignedUrl: string) {
         if (dbSave !== null) {
             console.log("File saved to database");
             // @ts-ignore
-            await processFile(key.toString(), dbSave.id);
+            // await processFile(key.toString(), dbSave.id);
+            console.log("Transcription job awaited");
         }
         console.log("Uploaded Url: ", formData.get("key"));
 
