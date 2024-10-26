@@ -4,7 +4,7 @@ import { NEXTAUTH_CONFIG } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
 
-export async function saveToDb(fileUrl: string, fileName: string, fileContentType: string) {
+export async function saveToDb(fileUrl: string, fileName: string, fileContentType: string, audioLanguage: string, key: string) {
     const session = await getServerSession(NEXTAUTH_CONFIG);
     if (!session) {
         console.log("You must be logged in to upload files");
@@ -17,6 +17,8 @@ export async function saveToDb(fileUrl: string, fileName: string, fileContentTyp
                 name: fileName,
                 url: fileUrl,
                 type: fileContentType,
+                audioLanguage: audioLanguage,
+                key: key,
                 userId: userId,
             }
         });
