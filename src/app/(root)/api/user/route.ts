@@ -14,7 +14,6 @@ export async function GET() {
       },
       include: {
         files: true,
-        subscriptions: true,
         payments: true,
       },
     });
