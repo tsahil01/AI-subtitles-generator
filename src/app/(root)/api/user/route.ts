@@ -14,12 +14,11 @@ export async function GET() {
       },
       include: {
         files: true,
-        subscriptions: true,
-        payments: true,
+          payments: true,
       },
     });
     return NextResponse.json({
-      details,
+      user: details,
     });
   } catch (e) {
     console.log(e);
