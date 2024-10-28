@@ -2,9 +2,10 @@
 
 import { NEXTAUTH_CONFIG } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getServerSession } from "next-auth";
 
-export async function saveToDb(fileUrl: string, fileName: string, fileContentType: string, audioLanguage: string, key: string) {
+export async function saveToDb(fileUrl: string, fileName: string, fileContentType: string, audioLanguage: string, key: string, transactionId: string) {
     const session = await getServerSession(NEXTAUTH_CONFIG);
     if (!session) {
         console.log("You must be logged in to upload files");
@@ -12,22 +13,40 @@ export async function saveToDb(fileUrl: string, fileName: string, fileContentTyp
     }
     try {
         const userId = session.userId;
-        const addFile = await prisma.file.create({
-            data: {
-                name: fileName,
-                url: fileUrl,
-                type: fileContentType,
-                audioLanguage: audioLanguage,
-                key: key,
-                userId: userId,
-            }
-        });
-        if (!addFile) {
+
+        const tnx = await prisma.$transaction([
+            prisma.payment.update({
+                where: {
+                    transactionId: transactionId
+                },
+                data: {
+                    status: "SUCCESS"
+                },
+                
+            }),
+
+            prisma.file.create({
+                data: {
+                    name: fileName,
+                    url: fileUrl,
+                    type: fileContentType,
+                    audioLanguage: audioLanguage,
+                    key: key,
+                    userId: userId,
+                    transactionId: transactionId
+
+                }
+            })
+        ])
+
+        console.log("File saved to database: ", tnx);
+
+        if (!tnx) {
             console.log("Failed to save file to database");
             return null;
         }
-        console.log("File saved to database:", addFile);
-        return addFile;
+        console.log("File saved to database:", tnx);
+        return tnx;
 
     } catch (error: any) {
         console.error("Error saving file to database:", error);

@@ -41,6 +41,12 @@ export function TopBar() {
           <nav className="hidden md:flex items-center space-x-4">
             <Link
               className="text-sm font-medium hover:underline underline-offset-4"
+              href="/dashboard"
+            >
+              Dashboard
+            </Link>
+            <Link
+              className="text-sm font-medium hover:underline underline-offset-4"
               href="#features"
             >
               Features
