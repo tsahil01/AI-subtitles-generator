@@ -70,4 +70,5 @@ enum transcriptionStatus {
   PENDING
   SUCCESS
   FAILED
+  IN_PROGRESS
 }
