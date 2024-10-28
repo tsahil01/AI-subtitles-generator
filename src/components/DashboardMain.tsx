@@ -14,6 +14,7 @@ import {
   Video,
 } from "lucide-react";
 import { DropZone } from "./DropZone";
+import FilesTable from "./FilesTable";
 
 export function DashboardMain() {
   return (
@@ -31,7 +32,11 @@ export function DashboardMain() {
         <TopCard title="SOL spent" Icon={BadgeDollarSign} content="56.8 SOL" />
       </div>
       <DropZone />
-      
+
+      <div className="flex flex-col">
+        <h2 className="md:text-3xl text-2xl font-bold">Your Files</h2>
+        <FilesTable />
+      </div>
     </main>
   );
 }
@@ -55,5 +60,3 @@ function TopCard({ title, Icon, content }: TopCardProps) {
     </Card>
   );
 }
-
-

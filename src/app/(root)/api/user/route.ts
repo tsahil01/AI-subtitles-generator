@@ -4,26 +4,40 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const { userId, web3Address } = await getServerSession(NEXTAUTH_CONFIG);
-  console.log(userId, web3Address);
+  const session = await getServerSession(NEXTAUTH_CONFIG);
+  if (!session || !session.userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { userId } = session;
 
   try {
-    const details = await prisma.user.findFirst({
+    const userDetails = await prisma.user.findUnique({
       where: {
         id: userId,
       },
       include: {
-        files: true,
-          payments: true,
+        files: {
+          include: {
+            subtitles: true,
+          },
+        },
+        payments: true,
       },
     });
+
+    if (!userDetails) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     return NextResponse.json({
-      user: details,
+      user: userDetails,
     });
   } catch (e) {
-    console.log(e);
-    return NextResponse.json({
-      error: "User not found",
-    });
+    console.error("Error fetching user details:", e);
+    return NextResponse.json(
+      { error: "An error occurred while fetching user data" },
+      { status: 500 }
+    );
   }
 }

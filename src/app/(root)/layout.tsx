@@ -28,9 +28,9 @@ export default function RootLayout({
 
   useEffect(() => {
     getUser().then((data) => {
-      setUser(data);
+      setUser(data.user);
     });
-  }, [user]);
+  }, []);
 
   const network = WalletAdapterNetwork.Mainnet;
 
@@ -43,7 +43,6 @@ export default function RootLayout({
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <>
-            {user ? JSON.stringify(user) : "No user"}
             {children}
           </>
         </WalletModalProvider>
