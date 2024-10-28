@@ -19,22 +19,10 @@ model User {
   premium       Boolean        @default(false)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  subscriptions Subscription[]
   payments      Payment[]
   files         File[]
 }
 
-model Subscription {
-  id        String             @id @default(cuid())
-  userId    String
-  plan      String
-  status    SubscriptionStatus
-  createdAt DateTime           @default(now())
-  expiresAt DateTime
-  paymentId String
-  payment   Payment            @relation(fields: [paymentId], references: [id])
-  user      User               @relation(fields: [userId], references: [id])
-}
 
 model Payment {
   id           String         @id @default(cuid())
@@ -43,7 +31,6 @@ model Payment {
   status       paymentStatus
   createdAt    DateTime       @default(now())
   user         User           @relation(fields: [userId], references: [id])
-  subscription Subscription[]
 }
 
 model File {
@@ -83,8 +70,3 @@ enum transactionStatus {
   FAILED
 }
 
-enum SubscriptionStatus {
-  ACTIVE
-  CANCELED
-  EXPIRED
-}
