@@ -65,7 +65,7 @@ export function DropZone() {
   return (
     <>
       <Card
-        className={`cursor-pointer transition-colors ${
+        className={`cursor-pointer transition-colors max-w-5xl mx-auto ${
           isDragging ? "border-primary" : "border-border"
         }`}
         onDragOver={onDragOver}
@@ -152,8 +152,11 @@ function UploadDialog({
       if (uploadResponse) {
         console.log(uploadResponse);
         setMessage("Upload successful!");
-        // setFile(null); // Reset the file input if needed
-        // Save the file URL to a database or use it in your app
+        toast({
+          title: "Success",
+          description: "File uploaded successfully",
+          className: "bg-green-300 text-white"
+        })
 
       } else {
         console.error("S3 Upload Error:", uploadResponse);

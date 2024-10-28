@@ -31,10 +31,12 @@ export function DashboardMain() {
         <TopCard title="Minutes Processed" Icon={Clock3Icon} content="257" />
         <TopCard title="SOL spent" Icon={BadgeDollarSign} content="56.8 SOL" />
       </div>
-      <DropZone />
-
-      <div className="flex flex-col">
-        <h2 className="md:text-3xl text-2xl font-bold">Your Files</h2>
+      <div className="flex flex-col gap-6 w-full">
+        <div className="md:col-span-4 h-full">
+          <DropZone />
+        </div>
+      </div>
+      <div className="md:col-span-4 h-full rounded-xl border">
         <FilesTable />
       </div>
     </main>

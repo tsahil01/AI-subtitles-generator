@@ -98,40 +98,44 @@ export default function FilesTable() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container p-5 h-full w-auto">
       <Table>
-        <TableCaption>A list of your files with actions</TableCaption>
+        <TableCaption className="text-xs">A list of your files with actions</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[250px]">File Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Transcribe</TableHead>
-            <TableHead>Delete</TableHead>
-            <TableHead>Transaction</TableHead>
+            <TableHead className="text-center">File Name</TableHead>
+            <TableHead className="text-center">Type</TableHead>
+            <TableHead className="text-center">Status</TableHead>
+            <TableHead className="text-center">Transcribe</TableHead>
+            <TableHead className="text-center">Delete</TableHead>
+            <TableHead className="text-center">Transaction</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {user.files.map((file) => (
             <TableRow key={file.id}>
-              <TableCell className="font-medium">{file.name}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
+              <TableCell className="font-medium text-center ">{file.name}</TableCell>
+
+              <TableCell className="text-center">
+                <div className="flex items-center gap-2 justify-center">
                   {getFileIcon(file.type)}
-                  <span className="capitalize">{file.type}</span>
+                  <span className="capitalize">{(file.type).split('/')[0]}</span>
                 </div>
               </TableCell>
-              <TableCell>
+
+              <TableCell className="text-center">
                 {getStatusBadge(
                   file.subtitles[0]?.transcriptionStatus || "PENDING"
                 )}
               </TableCell>
-              <TableCell>
+              
+              <TableCell className="flex justify-center">
                 {!file.subtitles.length ||
                 file.subtitles[0]?.transcriptionStatus === "PENDING" ? (
                   <Button
                     variant="outline"
-                    size="sm"
+                
                     className="flex items-center gap-2"
                     onClick={() => onStartTranscription(file.id)}
                   >
@@ -141,7 +145,7 @@ export default function FilesTable() {
                 ) : (
                   <Button
                     variant="outline"
-                    size="sm"
+                
                     className="flex items-center gap-2"
                     onClick={() => onDownload(file.id)}
                   >
@@ -150,23 +154,25 @@ export default function FilesTable() {
                   </Button>
                 )}
               </TableCell>
-              <TableCell>
+
+              <TableCell className="">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
+                  variant="outline"
+                  className="h-8 w-8 p-0 mx-auto justify-center flex"
                   onClick={() => onDelete(file.id)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-red-400" />
                   <span className="sr-only">Delete</span>
                 </Button>
               </TableCell>
-              <TableCell>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+
+              <TableCell className="flex justify-center">
+                <Button variant="outline" className="h-8 w-8 p-0 justify-center flex">
                   <ExternalLink className="h-4 w-4" />
                   <span className="sr-only">Open transaction details</span>
                 </Button>
               </TableCell>
+
             </TableRow>
           ))}
         </TableBody>
