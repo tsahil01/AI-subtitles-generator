@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { User, File, SubtitlesFile } from "@/lib/types"
+import { User, File as FileType } from "@/lib/types"
 import { userAtom } from "@/atoms/userAtom/userAtom"
 
 export default function FilesTable() {
@@ -56,6 +56,7 @@ export default function FilesTable() {
                     id: `temp-${Date.now()}`,
                     name: `${file.name}-subtitles`,
                     url: "",
+                    fileId: file.id,
                     transcriptionJobName: `job-${file.id}`,
                     transcriptionStatus: "IN_PROGRESS",
                   },
@@ -84,18 +85,15 @@ export default function FilesTable() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "SUCCESS":
-        return <Badge className="bg-green-100 text-green-800">Success</Badge>
-      case "FAILED":
-        return <Badge className="bg-red-100 text-red-800">Failed</Badge>
-      case "IN_PROGRESS":
-        return <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>
-      default:
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+  const getStatusBadge = (status: 'SUCCESS' | 'FAILED' | 'IN_PROGRESS' | 'PENDING') => {
+      const statusMap = {
+        SUCCESS: "bg-green-100 text-green-800",
+        FAILED: "bg-red-100 text-red-800",
+        IN_PROGRESS: "bg-blue-100 text-blue-800",
+        PENDING: "bg-yellow-100 text-yellow-800",
+      };
+      return <Badge className={statusMap[status] || statusMap.PENDING}>{status}</Badge>
     }
-  }
 
   return (
     <div className="container p-5 h-full w-auto">
@@ -117,54 +115,49 @@ export default function FilesTable() {
         <TableBody>
           {user.files.map((file) => (
             <TableRow key={file.id}>
-              <TableCell className="font-medium text-center ">{file.name}</TableCell>
-
-              <TableCell className="font-medium text-center capitalize">{file?.audioLanguage}</TableCell>
-
+              <TableCell className="font-medium text-center">{file.name}</TableCell>
+              <TableCell className="font-medium text-center capitalize">{file.audioLanguage}</TableCell>
               <TableCell className="text-center">
                 <div className="flex items-center gap-2 justify-center">
                   {getFileIcon(file.type)}
-                  <span className="capitalize">{(file.type).split('/')[0]}</span>
+                  <span className="capitalize">{file.type.split('/')[0]}</span>
                 </div>
               </TableCell>
+              <TableCell className="font-medium text-center">{file.updatedAt.split("T")[0]}</TableCell>
+              <TableCell className="text-center">{getStatusBadge(
+                file.subtitles.length ? (file.subtitles[0].transcriptionStatus as 'SUCCESS' | 'FAILED' | 'IN_PROGRESS' | 'PENDING') : "PENDING"
+              )}</TableCell>
 
-              <TableCell className="font-medium text-center ">{(file.updatedAt).split("T")[0]}</TableCell>
-
-              <TableCell className="text-center">
-                {getStatusBadge(
-                  file.subtitles[0]?.transcriptionStatus || "PENDING"
-                )}
-              </TableCell>
-              
               <TableCell className="flex justify-center">
-                {!file.subtitles.length ||
-                file.subtitles[0]?.transcriptionStatus === "PENDING" ? (
-                  <Button
-                    variant="outline"
-                
-                    className="flex items-center gap-2"
-                    onClick={() => onStartTranscription(file.id)}
-                  >
-                    <Play className="h-4 w-4" />
-                    Start Transcription
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                
-                    className="flex items-center gap-2"
-                    onClick={() => onDownload(file.id)}
-                  >
-                    <Download className="h-4 w-4" />
-                    Start Download
-                  </Button>
-                )}
-              </TableCell>
-
-              <TableCell className="">
                 <Button
                   variant="outline"
-                  className="h-8 w-8 p-0 mx-auto justify-center flex"
+                  className="flex items-center gap-2"
+                  onClick={() => {
+                    if (!file.subtitles.length || file.subtitles[0]?.transcriptionStatus === "PENDING") {
+                      onStartTranscription(file.id)
+                    } else {
+                      onDownload(file.id)
+                    }
+                  }}
+                >
+                  {file.subtitles.length === 0 || file.subtitles[0]?.transcriptionStatus === "PENDING" ? (
+                    <>
+                      <Play className="h-4 w-4" />
+                      Start Transcription
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4" />
+                      Start Download
+                    </>
+                  )}
+                </Button>
+              </TableCell>
+
+              <TableCell>
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0 mx-auto flex justify-center"
                   onClick={() => onDelete(file.id)}
                 >
                   <Trash2 className="h-4 w-4 text-red-400" />
@@ -173,12 +166,15 @@ export default function FilesTable() {
               </TableCell>
 
               <TableCell className="flex justify-center">
-                <Button variant="outline" className="h-8 w-8 p-0 justify-center flex">
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0 flex justify-center"
+                  onClick={() => window.open(`https://explorer.solana.com/tx/${file.transactionId}?cluster=devnet`)}
+                >
                   <ExternalLink className="h-4 w-4" />
                   <span className="sr-only">Open transaction details</span>
                 </Button>
               </TableCell>
-
             </TableRow>
           ))}
         </TableBody>
