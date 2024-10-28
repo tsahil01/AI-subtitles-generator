@@ -14,23 +14,23 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  web3Address   String         @unique
-  premium       Boolean        @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  payments      Payment[]
-  files         File[]
+  id          String    @id @default(cuid())
+  web3Address String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  payments    Payment[]
+  files       File[]
 }
 
-
 model Payment {
-  id           String         @id @default(cuid())
-  userId       String
-  amount       Int
-  status       paymentStatus
-  createdAt    DateTime       @default(now())
-  user         User           @relation(fields: [userId], references: [id])
+  id            String        @id @default(cuid())
+  userId        String
+  amount        Int
+  TransactionId String        @unique
+  status        paymentStatus
+  createdAt     DateTime      @default(now())
+  user          User          @relation(fields: [userId], references: [id])
+  files         File[]
 }
 
 model File {
@@ -44,18 +44,20 @@ model File {
   userId        String
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  TransactionId String
   user          User            @relation(fields: [userId], references: [id])
+  transaction   Payment         @relation(fields: [TransactionId], references: [TransactionId])
   subtitles     SubtitlesFile[]
 }
 
 model SubtitlesFile {
-  id                   String            @id @default(cuid())
+  id                   String              @id @default(cuid())
   name                 String
   url                  String
   fileId               String
   transcriptionJobName String
-  transcriptionStatus  transactionStatus @default(PENDING)
-  file                 File              @relation(fields: [fileId], references: [id])
+  transcriptionStatus  transcriptionStatus @default(PENDING)
+  file                 File                @relation(fields: [fileId], references: [id])
 }
 
 enum paymentStatus {
@@ -64,9 +66,8 @@ enum paymentStatus {
   FAILED
 }
 
-enum transactionStatus {
+enum transcriptionStatus {
   PENDING
   SUCCESS
   FAILED
 }
-
