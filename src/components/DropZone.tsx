@@ -20,6 +20,7 @@ import {
 } from "./ui/select";
 import { toast } from "@/hooks/use-toast";
 import { saveToS3 } from "@/actions/saveToS3";
+import { doTransaction } from "@/actions/doTransaction";
 
 export function DropZone() {
   const [isDragging, setIsDragging] = useState(false);
@@ -106,25 +107,27 @@ function UploadDialog({
   const [audio, setAudio] = useState("");
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
-  
+
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(!audio || !name) {
+    if (!audio || !name) {
       toast({
         title: "Error",
         description: "Please fill all the fields",
-        variant: "destructive"
-      })
-      return
-    };
+        variant: "destructive",
+      });
+      return;
+    }
     onOpenChange(false);
 
     const fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
-    const sanitizedFileName = `${name.trim().replace(/\s+/g, "_")}.${fileExtension}`;
-  
+    const sanitizedFileName = `${name
+      .trim()
+      .replace(/\s+/g, "_")}.${fileExtension}`;
+
     file = new File([file], sanitizedFileName, { type: file.type });
     console.log("Renamed file:", file);
-  
+
     try {
       const response = await fetch(
         `/api/upload?filename=${sanitizedFileName}&contentType=${file.type}`
@@ -146,8 +149,23 @@ function UploadDialog({
       newFormData.append("file", file);
 
       console.log("Full form data: ", newFormData);
+      const txnID = `transactionID${Date.now()}`;
 
-      const uploadResponse = await saveToS3(newFormData, url, name, audio); // Upload the file to S3
+      const halfTnx = await doTransaction(0.5, txnID);
+
+      if (!halfTnx) {
+        console.error("Failed to do half transaction");
+        return;
+      }
+      console.log("Half transaction done: ", halfTnx);
+  
+      const uploadResponse = await saveToS3(
+        newFormData,
+        url,
+        name,
+        audio,
+        txnID
+      ); // Upload the file to S3
 
       if (uploadResponse) {
         console.log(uploadResponse);
@@ -155,9 +173,8 @@ function UploadDialog({
         toast({
           title: "Success",
           description: "File uploaded successfully",
-          className: "bg-green-300 text-white"
-        })
-
+          className: "bg-green-300 text-white",
+        });
       } else {
         console.error("S3 Upload Error:", uploadResponse);
         setMessage("Upload failed.");
@@ -169,7 +186,6 @@ function UploadDialog({
       setUploading(false);
     }
   };
-  
 
   return (
     <Dialog open={open}>
@@ -187,7 +203,7 @@ function UploadDialog({
                 placeholder="Name of your project"
                 onChange={(e) => setName(e.target.value)}
                 maxLength={10}
-                required = {true}
+                required={true}
               />
             </div>
             <div className="flex flex-col space-y-1.5">

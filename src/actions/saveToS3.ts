@@ -5,7 +5,7 @@ import { processFile } from "./transcriptionJob";
 
 const CLOUDFRONT_URL = process.env.CLOUDFRONT_URL;
 
-export async function saveToS3(formData: FormData, presignedUrl: string, fileName: string, audioType: string) {
+export async function saveToS3(formData: FormData, presignedUrl: string, fileName: string, audioType: string, transactionId: string) {
     const response = await fetch(presignedUrl, {
         method: "POST",
         body: formData,
@@ -18,7 +18,9 @@ export async function saveToS3(formData: FormData, presignedUrl: string, fileNam
         const fileContentType = formData.get("Content-Type") || "unknown";
         const url = await `${CLOUDFRONT_URL}/${key}`;
 
-        const dbSave = await saveToDb(url, `${fileName}`, `${fileContentType}`, audioType, key.toString());
+        // Save file to database with payment status as pending
+        const dbSave = await saveToDb(url, `${fileName}`, `${fileContentType}`, audioType, key.toString(), transactionId);
+
         if (dbSave === null) {
             console.error("Failed to save file to database");
             return false;
