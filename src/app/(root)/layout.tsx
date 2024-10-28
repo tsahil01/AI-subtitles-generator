@@ -32,14 +32,14 @@ export default function RootLayout({
     });
   }, []);
 
-  const network = WalletAdapterNetwork.Mainnet;
+  const network = WalletAdapterNetwork.Devnet;
 
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   const wallets = useMemo(() => [], [network]);
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider endpoint="https://solana-devnet.g.alchemy.com/v2/vYa-RYjmjTm_eOz511A0gCCyS9bxvkVa">
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <>

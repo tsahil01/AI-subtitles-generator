@@ -21,6 +21,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { saveToS3 } from "@/actions/saveToS3";
 import { doTransaction } from "@/actions/doTransaction";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 export function DropZone() {
   const [isDragging, setIsDragging] = useState(false);
@@ -103,10 +105,13 @@ function UploadDialog({
   onOpenChange: (open: boolean) => void;
   file: File;
 }) {
+  const wallet = useWallet();
   const [name, setName] = useState("");
   const [audio, setAudio] = useState("");
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const { connection } = useConnection();
+
 
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,7 +144,6 @@ function UploadDialog({
       }
 
       const { url, fields } = await response.json(); // Get the pre-signed URL and fields
-
       console.log("Pre-signed URL:", url);
 
       const newFormData = new FormData();
@@ -147,18 +151,42 @@ function UploadDialog({
         newFormData.append(key, value as string);
       });
       newFormData.append("file", file);
-
       console.log("Full form data: ", newFormData);
-      const txnID = `transactionID${Date.now()}`;
+
+      // TODO: Do a transaction to get the transaction ID
+      if (!wallet.publicKey) {
+        toast({
+          title: "Error",
+          description: "Wallet not connected",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const transaction = await new Transaction();
+      transaction.add(
+        await SystemProgram.transfer({
+          fromPubkey: wallet.publicKey,
+          toPubkey: new PublicKey("B48DxbGUPDYaSNnVY9n5cSUxK5ZyXQGeyaf6A43f2asx"),
+          lamports: 5*LAMPORTS_PER_SOL,
+        })
+      );
+      const txnID = await wallet.sendTransaction(transaction, connection);
+      console.log(txnID);
+      toast({
+        title: "Transaction Success",
+        description: `Tx: ${txnID}`,
+      });
+
+      
 
       const halfTnx = await doTransaction(0.5, txnID);
-
       if (!halfTnx) {
         console.error("Failed to do half transaction");
         return;
       }
       console.log("Half transaction done: ", halfTnx);
-  
+
       const uploadResponse = await saveToS3(
         newFormData,
         url,
