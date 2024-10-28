@@ -105,6 +105,8 @@ export default function FilesTable() {
           <TableRow>
             <TableHead className="text-center">File Name</TableHead>
             <TableHead className="text-center">Type</TableHead>
+            <TableHead className="text-center">Language</TableHead>
+            <TableHead className="text-center">Uploaded at</TableHead>
             <TableHead className="text-center">Status</TableHead>
             <TableHead className="text-center">Transcribe</TableHead>
             <TableHead className="text-center">Delete</TableHead>
@@ -117,12 +119,16 @@ export default function FilesTable() {
             <TableRow key={file.id}>
               <TableCell className="font-medium text-center ">{file.name}</TableCell>
 
+              <TableCell className="font-medium text-center capitalize">{file?.audioLanguage}</TableCell>
+
               <TableCell className="text-center">
                 <div className="flex items-center gap-2 justify-center">
                   {getFileIcon(file.type)}
                   <span className="capitalize">{(file.type).split('/')[0]}</span>
                 </div>
               </TableCell>
+
+              <TableCell className="font-medium text-center ">{(file.updatedAt).split("T")[0]}</TableCell>
 
               <TableCell className="text-center">
                 {getStatusBadge(
