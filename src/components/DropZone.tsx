@@ -18,11 +18,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { toast } from "@/hooks/use-toast";
 import { saveToS3 } from "@/actions/saveToS3";
 import { doTransaction } from "@/actions/doTransaction";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 
 export function DropZone() {
   const [isDragging, setIsDragging] = useState(false);
@@ -111,7 +126,7 @@ function UploadDialog({
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const { connection } = useConnection();
-
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,16 +149,19 @@ function UploadDialog({
     console.log("Renamed file:", file);
 
     try {
+      setUploading(true);
+      setIsDrawerOpen(true);
+      setMessage("Starting upload process...");
+
       const response = await fetch(
         `/api/upload?filename=${sanitizedFileName}&contentType=${file.type}`
       );
 
       if (!response.ok) {
-        console.error("Failed to get pre-signed URL.");
-        return;
+        throw new Error("Failed to get pre-signed URL.");
       }
 
-      const { url, fields } = await response.json(); // Get the pre-signed URL and fields
+      const { url, fields } = await response.json();
       console.log("Pre-signed URL:", url);
 
       const newFormData = new FormData();
@@ -153,113 +171,154 @@ function UploadDialog({
       newFormData.append("file", file);
       console.log("Full form data: ", newFormData);
 
-      // TODO: Do a transaction to get the transaction ID
       if (!wallet.publicKey) {
-        toast({
-          title: "Error",
-          description: "Wallet not connected",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("Wallet not connected");
       }
 
-      const transaction = await new Transaction();
+      setMessage("Starting transaction...");
+      toast({
+        title: "Transaction",
+        description: "Transaction starting....",
+      });
+
+      const sentTo = process.env.NEXT_PUBLIC_OWNER_SOL_ADDRESS;
+      if (!sentTo) {
+        throw new Error("Owner address not found");
+      }
+
+      const transaction = new Transaction();
       transaction.add(
-        await SystemProgram.transfer({
+        SystemProgram.transfer({
           fromPubkey: wallet.publicKey,
-          toPubkey: new PublicKey("B48DxbGUPDYaSNnVY9n5cSUxK5ZyXQGeyaf6A43f2asx"),
-          lamports: 5*LAMPORTS_PER_SOL,
+          toPubkey: new PublicKey(sentTo),
+          lamports: 0.05 * LAMPORTS_PER_SOL,
         })
       );
+
       const txnID = await wallet.sendTransaction(transaction, connection);
+      if (!txnID) {
+        toast({
+          title: "Transaction Error",
+          description: "Failed to send transaction",
+          variant: "destructive",
+        });
+        setMessage("Transaction failed.");
+        throw new Error("Failed to send transaction");
+      }
       console.log(txnID);
       toast({
         title: "Transaction Success",
         description: `Tx: ${txnID}`,
       });
-
-      
+      setMessage("Transaction successful. Processing...");
 
       const halfTnx = await doTransaction(0.5, txnID);
       if (!halfTnx) {
-        console.error("Failed to do half transaction");
-        return;
+        throw new Error("Failed to do half transaction");
       }
       console.log("Half transaction done: ", halfTnx);
 
+      setMessage("Uploading file to S3...");
       const uploadResponse = await saveToS3(
         newFormData,
         url,
         name,
         audio,
         txnID
-      ); // Upload the file to S3
-
+      );
       if (uploadResponse) {
         console.log(uploadResponse);
         setMessage("Upload successful!");
+        setMessage("");
         toast({
           title: "Success",
           description: "File uploaded successfully",
-          className: "bg-green-300 text-white",
         });
       } else {
         console.error("S3 Upload Error:", uploadResponse);
         setMessage("Upload failed.");
+        toast({
+          title: "Error",
+          description: "File upload failed",
+          variant: "destructive",
+        });
+        setMessage("");
       }
     } catch (error) {
       console.error("Error:", error);
       setMessage("An error occurred during upload.");
+      setMessage("");
     } finally {
       setUploading(false);
+      setTimeout(() => {
+        setIsDrawerOpen(false);
+        setMessage("");
+      }, 3000);
     }
   };
 
   return (
-    <Dialog open={open}>
-      <DialogContent className="border-0">
-        <DialogHeader>
-          <DialogTitle>Create project</DialogTitle>
-          <CardDescription>Configure your project settings.</CardDescription>
-        </DialogHeader>
-        <form onSubmit={handleConfirm}>
-          <div className="grid w-full items-center gap-4 my-3">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Project Name</Label>
-              <Input
-                id="name"
-                placeholder="Name of your project"
-                onChange={(e) => setName(e.target.value)}
-                maxLength={10}
-                required={true}
-              />
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="border-0">
+          <DialogHeader>
+            <DialogTitle>Create project</DialogTitle>
+            <CardDescription>Configure your project settings.</CardDescription>
+          </DialogHeader>
+          <form onSubmit={handleConfirm}>
+            <div className="grid w-full items-center gap-4 my-3">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="name">Project Name</Label>
+                <Input
+                  id="name"
+                  placeholder="Name of your project"
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={10}
+                  required={true}
+                />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="audio">Audio Language</Label>
+                <Select onValueChange={(val) => setAudio(val)}>
+                  <SelectTrigger id="audio">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="hindi">Hindi</SelectItem>
+                    <SelectItem value="japanese">Japanese</SelectItem>
+                    <SelectItem value="spanish">Spanish</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="audio">Audio Language</Label>
-              <Select onValueChange={(val) => setAudio(val)}>
-                <SelectTrigger id="audio">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectItem value="english">English</SelectItem>
-                  <SelectItem value="hindi">Hindi</SelectItem>
-                  <SelectItem value="japanese">Japanese</SelectItem>
-                  <SelectItem value="spanish">Spanish</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter className="flex justify-between">
-            <Button
-              type="button"
-              onClick={handleConfirm}
-              className="w-full mx-auto"
-            >
-              Upload
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter className="flex justify-between">
+              <Button
+                type="submit"
+                className="w-full mx-auto"
+                disabled={uploading}
+              >
+                {uploading ? "Uploading..." : "Upload"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle className="md:text-3xl text-xl">
+              {message || "Processing your upload..."}
+            </DrawerTitle>
+            <DrawerDescription>
+              Do not close this window until the process is complete.
+            </DrawerDescription>
+          </DrawerHeader>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 }
+
+export default DropZone;

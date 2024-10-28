@@ -35,7 +35,8 @@
     "recoil": "^0.7.7",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "vaul": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
