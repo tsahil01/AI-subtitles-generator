@@ -4,6 +4,7 @@ import { NEXTAUTH_CONFIG } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getServerSession } from "next-auth";
+import { subtitleDBCall } from "./transcriptionJob";
 
 export async function saveToDb(fileUrl: string, fileName: string, fileContentType: string, audioLanguage: string, key: string, transactionId: string) {
     const session = await getServerSession(NEXTAUTH_CONFIG);
@@ -46,6 +47,11 @@ export async function saveToDb(fileUrl: string, fileName: string, fileContentTyp
             return null;
         }
         console.log("File saved to database:", tnx);
+        const fileDbId:string = tnx[1].id;
+        await subtitleDBCall(key, fileDbId);
+        
+        console.log("Transcription job awaited");
+
         return tnx;
 
     } catch (error: any) {

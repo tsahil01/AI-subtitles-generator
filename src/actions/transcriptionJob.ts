@@ -11,6 +11,33 @@ const transcribeService = new TranscribeService({
   region: `${process.env.AWS_REGION}`,
 });
 
+export async function subtitleDBCall(fileNamePath: string, fileDbId: string, status?: string) {
+  const user = fileNamePath.split('/')[0];
+  const jobName = user + '-' + Date.now();
+  const OutputFilePath = fileNamePath.split('/').slice(0, 2).join('-');
+  const outputFolder = `transcription-results/${OutputFilePath}/`;
+  try {
+    const saveTranscription = await prisma.subtitlesFile.create({
+      data: {
+        name: OutputFilePath,
+        url: `${CLOUDFRONT_URL}/${outputFolder}${jobName}`,
+        fileId: fileDbId,
+        transcriptionJobName: jobName,
+      }
+    })
+    if (!saveTranscription) {
+      console.error("Failed to save transcription to database");
+      return false;
+    }
+    console.log("Pending Transcription saved to database: ", saveTranscription);
+    return true;
+  } catch (error) {
+    console.error("Transcription job error:", error);
+    return false;
+  }
+
+}
+
 export async function processFile(fileNamePath: string, fileDbId: string) {
   const user = fileNamePath.split('/')[0];
   const jobName = user + '-' + Date.now();
@@ -51,12 +78,16 @@ export async function processFile(fileNamePath: string, fileDbId: string) {
     await transcribeService.startTranscriptionJob(params).promise();
     console.log(`Started transcription job: ${jobName}`);
     // do db update here
-    const saveTranscription = await prisma.subtitlesFile.create({
+    const saveTranscription = await prisma.subtitlesFile.update({
+      where: {
+        fileId: fileDbId
+      },
       data: {
         name: OutputFilePath,
         url: `${CLOUDFRONT_URL}/${outputFolder}${jobName}`,
-        transcriptionJobName: jobName,
         fileId: fileDbId,
+        transcriptionJobName: jobName,
+        transcriptionStatus: 'IN_PROGRESS',
       }
     })
 
@@ -84,14 +115,23 @@ export const checkTranscriptionJob = async (jobName: string) => {
 
     if (jobStatus === 'COMPLETED') {
       console.log("Transcription job completed.");
+      await prisma.subtitlesFile.update({
+        where: {
+          transcriptionJobName: jobName
+        },
+        data: {
+          transcriptionStatus: 'SUCCESS',
+        }
+      })
 
       // Get the transcript file URI
       const transcriptFileUri = data.TranscriptionJob.Transcript.TranscriptFileUri;
       console.log("Transcript file URI:", transcriptFileUri);
-      break;
+      return true;
+
     } else if (jobStatus === 'FAILED') {
       console.error("Transcription job failed:", data.TranscriptionJob.FailureReason);
-      break;
+      return false;
     }
 
     // Wait before checking again (5 seconds interval)
