@@ -30,7 +30,7 @@ model Payment {
   status        paymentStatus
   createdAt     DateTime      @default(now())
   user          User          @relation(fields: [userId], references: [id])
-  file          File?         
+  file          File?
 }
 
 model File {
@@ -54,8 +54,8 @@ model SubtitlesFile {
   id                   String              @id @default(cuid())
   name                 String
   url                  String
-  fileId               String
-  transcriptionJobName String
+  fileId               String              @unique
+  transcriptionJobName String              @unique
   transcriptionStatus  transcriptionStatus @default(PENDING)
   file                 File                @relation(fields: [fileId], references: [id])
 }
