@@ -25,12 +25,13 @@ import { User, File as FileType } from "@/lib/types";
 import { userAtom } from "@/atoms/userAtom/userAtom";
 import { checkTranscriptionJob, processFile } from "@/actions/transcriptionJob";
 import React, { useState } from "react";
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 import { toast } from "@/hooks/use-toast";
 
 export default function FilesTable() {
   const [user, setUser] = useRecoilState<User | null>(userAtom);
+  const [checking, setChecking] = useState(false);
 
   if (!user) return null;
 
@@ -88,41 +89,47 @@ export default function FilesTable() {
     const jobName =
       user.files.find((file) => file.id === fileId)?.subtitles[0]
         ?.transcriptionJobName || "";
-    if (!jobName) return false;
+    if (!jobName) return;
 
-    const getStatus = await checkTranscriptionJob(jobName);
-    if (getStatus == true) {
-      setUser((prevUser) => {
-        if (!prevUser) return null;
-        return {
-          ...prevUser,
-          files: prevUser.files.map((file) => {
-            if (file.id === fileId) {
-              return {
-                ...file,
-                subtitles: [
-                  {
-                    id: file.subtitles[0]?.id || "",
-                    name: file.subtitles[0]?.name || "",
-                    url: file.subtitles[0]?.url || "",
-                    fileId: file.id,
-                    transcriptionJobName:
-                      file.subtitles[0]?.transcriptionJobName || "",
-                    transcriptionStatus: "SUCCESS",
-                    transcription: "This is a test transcription",
-                  },
-                ],
-              };
-            }
-            return file;
-          }),
-        };
-      });
+    // Make a single call to the backend; backend handles the polling
+    try {
+      console.log("Checking transcription status for job:", jobName);
+      const response = await checkTranscriptionJob(jobName);
+      console.log("Transcription status response:", response);
+      if (response.status === "COMPLETED") {
+        setUser((prevUser) => {
+          if (!prevUser) return null;
+          return {
+            ...prevUser,
+            files: prevUser.files.map((file) => {
+              if (file.id === fileId) {
+                return {
+                  ...file,
+                  subtitles: [
+                    {
+                      ...file.subtitles[0],
+                      transcriptionStatus: "SUCCESS",
+                      transcription: "This is a test transcription",
+                      url: response.uri, // Transcript file URI
+                    },
+                  ],
+                };
+              }
+              return file;
+            }),
+          };
+        });
+      } else if (response.status === "FAILED") {
+        console.error("Transcription job failed.");
+        // Optionally update the UI to indicate failure
+      }
+    } catch (error) {
+      console.error("Error checking transcription status:", error);
+      // Handle any error that occurs during the request
     }
   };
 
   const onDownload = async (fileId: string) => {
-    
     const file = user.files.find((file) => file.id === fileId);
     const subtitle = file?.subtitles[0];
     const url = subtitle?.url;
@@ -132,33 +139,33 @@ export default function FilesTable() {
     toast({
       title: "Downloading...",
       description: "Your download will start shortly.",
-    })
-  
+    });
+    console.log("URL: ", url);
+
     const srtUrl = `${url}.srt`;
     const vttUrl = `${url}.vtt`;
     const jsonUrl = `${url}.json`;
-  
+
     try {
       const zip = new JSZip();
-      
+
       // Fetch and add SRT
-      const srtContent = await fetch(srtUrl).then(res => res.text());
+      const srtContent = await fetch(srtUrl).then((res) => res.text());
       zip.file(`${fileId}.srt`, srtContent);
-      
+
       // Fetch and add VTT
-      const vttContent = await fetch(vttUrl).then(res => res.text());
+      const vttContent = await fetch(vttUrl).then((res) => res.text());
       zip.file(`${fileId}.vtt`, vttContent);
-  
+
       // Fetch and add JSON
-      const jsonContent = await fetch(jsonUrl).then(res => res.text());
+      const jsonContent = await fetch(jsonUrl).then((res) => res.text());
       zip.file(`${fileId}.json`, jsonContent);
-  
+
       // Generate the ZIP and trigger download
-      const blob = await zip.generateAsync({ type: 'blob' });
+      const blob = await zip.generateAsync({ type: "blob" });
       saveAs(blob, `${file?.name}_subtitles.zip`);
-      
+
       console.log("Download complete.");
-  
     } catch (error) {
       console.error("Failed to download files", error);
     }
@@ -186,7 +193,9 @@ export default function FilesTable() {
       PENDING: "bg-yellow-100 text-yellow-800",
     };
     return (
-      <Badge className={statusMap[status] || statusMap.PENDING}>{status}</Badge>
+      <Badge className={statusMap[status] || statusMap.PENDING}>
+        {status === "IN_PROGRESS" ? "IN PROGRESS" : status}
+      </Badge>
     );
   };
 
@@ -194,7 +203,7 @@ export default function FilesTable() {
     <div className="container p-5 h-full w-auto">
       <Table>
         <TableCaption className="text-xs">
-          A list of your files with actions
+          Refresh the page to see the updated status of the transcription job.
         </TableCaption>
         <TableHeader>
           <TableRow>
@@ -243,6 +252,7 @@ export default function FilesTable() {
                 <Button
                   variant="outline"
                   className="flex items-center gap-2"
+                  disabled={checking}
                   onClick={() => {
                     if (
                       file.subtitles.length === 0 ||
@@ -253,20 +263,29 @@ export default function FilesTable() {
                       file.subtitles[0]?.transcriptionStatus === "IN_PROGRESS"
                     ) {
                       checkTranscriptionStatus(file.id);
+                      setChecking(true);
                     } else {
                       onDownload(file.id);
                     }
                   }}
                 >
-                  {file.subtitles.length === 0 ||
-                  file.subtitles[0]?.transcriptionStatus === "PENDING" ? (
-                    <Play className="h-4 w-4" />
-                  ) : file.subtitles[0]?.transcriptionStatus === "IN_PROGRESS" ? (
-                    <Badge className="bg-blue-100 text-blue-800">Checking...</Badge>
+                  {checking ? (
+                    <span>Checking...</span>
+                  ) : file.subtitles.length === 0 ||
+                    file.subtitles[0]?.transcriptionStatus === "PENDING" ? (
+                    <>
+                      <Play className="h-4 w-4" />
+                      <span className="sr-only">Transcribe</span>
+                    </>
+                  ) : file.subtitles[0]?.transcriptionStatus ===
+                    "IN_PROGRESS" ? (
+                    <span>Check Status</span>
                   ) : (
-                    <Download className="h-4 w-4" />
+                    <>
+                      <Download className="h-4 w-4" />
+                      <span className="sr-only">Download</span>
+                    </>
                   )}
-                  <span className="sr-only">Transcribe</span>
                 </Button>
               </TableCell>
 

@@ -3,7 +3,7 @@
 import { saveToDb } from "./saveToDb";
 import { processFile } from "./transcriptionJob";
 
-const CLOUDFRONT_URL = process.env.CLOUDFRONT_URL;
+const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL;
 
 export async function saveToS3(formData: FormData, presignedUrl: string, fileName: string, audioType: string, transactionId: string) {
     const response = await fetch(presignedUrl, {

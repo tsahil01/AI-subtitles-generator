@@ -103,38 +103,36 @@ export async function processFile(fileNamePath: string, fileDbId: string) {
 };
 
 export const checkTranscriptionJob = async (jobName: string) => {
-  const params = {
-    TranscriptionJobName: jobName,
-  };
+  const params = { TranscriptionJobName: jobName };
+  const pollInterval = 3000; // Poll every 5 seconds
 
   while (true) {
     const data = await transcribeService.getTranscriptionJob(params).promise() as any;
     const jobStatus = data.TranscriptionJob.TranscriptionJobStatus;
-
-    console.log(`Transcription job status: ${jobStatus}`);
+    console.log("Transcription job status:", jobStatus);
 
     if (jobStatus === 'COMPLETED') {
-      console.log("Transcription job completed.");
       await prisma.subtitlesFile.update({
-        where: {
-          transcriptionJobName: jobName
-        },
-        data: {
-          transcriptionStatus: 'SUCCESS',
-        }
-      })
+        where: { transcriptionJobName: jobName },
+        data: { transcriptionStatus: 'SUCCESS' },
+      });
 
       // Get the transcript file URI
       const transcriptFileUri = data.TranscriptionJob.Transcript.TranscriptFileUri;
       console.log("Transcript file URI:", transcriptFileUri);
-      return true;
 
+      return { status: 'COMPLETED', uri: transcriptFileUri };
     } else if (jobStatus === 'FAILED') {
       console.error("Transcription job failed:", data.TranscriptionJob.FailureReason);
-      return false;
+      await prisma.subtitlesFile.update({
+        where: { transcriptionJobName: jobName },
+        data: { transcriptionStatus: 'FAILED' },
+      });
+      return { status: 'FAILED' };
     }
 
-    // Wait before checking again (5 seconds interval)
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    // Wait before checking again
+    await new Promise(resolve => setTimeout(resolve, pollInterval));
   }
 };
+
