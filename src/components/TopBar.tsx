@@ -4,13 +4,12 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
-import { CubeIcon } from "@radix-ui/react-icons";
-import { Mic, Globe, Zap, Clock, ArrowRight } from "lucide-react";
+import { Mic, Globe, Zap, Clock, ArrowRight, Loader2 } from "lucide-react";
 import { signAndSend } from "@/lib/signAndSend";
 import { useState } from "react";
 
 export function TopBar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { publicKey, signMessage, disconnect } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,8 +63,10 @@ export function TopBar() {
               Contact
             </Link>
           </nav>
-          {!publicKey && <WalletMultiButton />}
-          {publicKey && !session && (
+          {status === "loading" && <Loader2 className="animate-spin h-6 w-6" />}
+
+          {!publicKey && status!= "loading"  && <WalletMultiButton />}
+          {publicKey && status!= "loading"  && !session && (
             <>
               <Button size={'lg'} className="hidden md:flex" onClick={handleSignIn} disabled={isLoading}>
                 {isLoading ? "Signing In..." : "Sign In with Solana"}

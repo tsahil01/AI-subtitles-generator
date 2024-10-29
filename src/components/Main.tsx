@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clock, Globe, Subtitles, Wallet, Zap } from "lucide-react";
+import { ArrowRight, Clock, Globe, Loader2, Subtitles, Wallet, Zap } from "lucide-react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -11,7 +11,7 @@ import { FlipWords } from "./ui/flip-words";
 
 export function Main() {
   const { publicKey, signMessage, disconnect } = useWallet();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -96,10 +96,11 @@ export function Main() {
             accurate, timely subtitles and pay seamlessly via Solana.
           </p>
           <div className="mt-8 flex justify-center">
-            {!publicKey && (
+          {status === "loading" && <Loader2 className="animate-spin h-6 w-6" />}
+            {!publicKey && status!= "loading" && (
               <WalletMultiButton className="!bg-primary hover:!bg-primary-dark text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out transform hover:scale-105" />
             )}
-            {publicKey && !session && (
+            {publicKey && status!= "loading" && !session && (
               <Button size="lg" onClick={handleSignIn} disabled={isLoading}>
                 {isLoading ? "Signing In..." : "Sign In with Solana"}
                 <ArrowRight className="ml-2 h-5 w-5" />
