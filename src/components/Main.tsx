@@ -95,19 +95,19 @@ export function Main() {
             Join thousands of content creators who trust our AI to generate
             accurate, timely subtitles and pay seamlessly via Solana.
           </p>
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex justify-center gap-4 my-auto">
           {status === "loading" && <Loader2 className="animate-spin h-6 w-6" />}
             {!publicKey && status!= "loading" && (
-              <WalletMultiButton className="!bg-primary hover:!bg-primary-dark text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out transform hover:scale-105" />
+              <WalletMultiButton/>
             )}
             {publicKey && status!= "loading" && !session && (
-              <Button size="lg" onClick={handleSignIn} disabled={isLoading}>
+              <Button size="lg" className="my-auto" onClick={handleSignIn} disabled={isLoading}>
                 {isLoading ? "Signing In..." : "Sign In with Solana"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             )}
             {session && (
-              <Button size="lg" asChild>
+              <Button size="lg" className="my-auto" asChild>
                 <Link href="/dashboard">Go to Dashboard</Link>
               </Button>
             )}
