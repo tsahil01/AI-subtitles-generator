@@ -11,12 +11,19 @@ import { DropZone } from "./DropZone";
 import FilesTable from "./FilesTable";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "@/atoms/userAtom/userAtom";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export function DashboardMain() {
   const user = useRecoilValue(userAtom);
 
   const totalProjects: any = user?.files.length || 0;
-  
+  // return sum of all payments
+  const solSpent: any =
+    (user?.payments?.reduce(
+      (total: number, payment: any) => total + (payment.amount || 0),
+      0
+    ) || 0) / LAMPORTS_PER_SOL;
+
   return (
     <main className="container mx-auto px-4 py-6 space-y-6 sm:py-8 sm:space-y-8">
       <div className="space-y-2">
@@ -32,7 +39,7 @@ export function DashboardMain() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <TopCard title="Total Projects" Icon={Video} content={totalProjects} />
         <TopCard title="Minutes Processed" Icon={Clock3Icon} content="257" />
-        <TopCard title="SOL spent" Icon={BadgeDollarSign} content="56.8 SOL" />
+        <TopCard title="SOL spent" Icon={BadgeDollarSign} content={solSpent} />
       </div>
 
       <div className="space-y-6">

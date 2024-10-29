@@ -3,11 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
 import { Toaster } from "@/components/ui/toaster";
-import { useSession } from "next-auth/react";
-import { useRecoilState } from "recoil";
-import { userAtom } from "@/atoms/userAtom/userAtom";
-import { getServerSession } from "next-auth";
-import { NEXTAUTH_CONFIG } from "@/lib/auth";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
