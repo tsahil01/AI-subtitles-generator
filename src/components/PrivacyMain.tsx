@@ -1,18 +1,30 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+
 export function PrivacyMain() {
   return (
     <>
-      <main className="container mx-auto px-4 py-6 space-y-6 sm:py-8 sm:space-y-6">
-          <h2 className="text-2xl font-bold md:text-4xl text-center">Privacy Policy</h2>
-
-        <div className="border-4 border-purple-900 p-4 max-w-4xl mx-auto flex flex-col gap-5 rounded-xl">
-          <span className="text-justify" >
+      <Card className="container mx-auto px-4 max-w-4xl mt-5 border-4 border-purple-900">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold md:text-4xl text-center">
+            Privacy Policy
+          </CardTitle>
+          <CardDescription className="text-justify mt-3 text-md">
             AI Subtitler is committed to protecting the privacy of its users.
             This Privacy Policy outlines how we collect, use, and safeguard your
             information when you use our services. By using AI Subtitler, you
             agree to the practices described in this policy.
-          </span>
-          <section className="flex flex-col gap-2 my-3">
-            <h3 className="text-2xl font-bold">1. Information Collection</h3>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-5 rounded-xl border-b">
+          <div className="flex flex-col gap-1 my-3 text-center">
+            <h3 className="text-xl font-bold">Information Collection</h3>
             <p className="text-justify">
               <div className="font-semibold">User-Provided Information:</div> To
               generate AI-powered subtitles, you may provide video files and
@@ -25,10 +37,10 @@ export function PrivacyMain() {
               Wallet addresses are stored only for transactional purposes and
               are not used to identify individuals.
             </p>
-          </section>
+          </div>
 
-          <section className="flex flex-col gap-2 my-3">
-            <h3 className="text-2xl font-bold">2. Use of Information</h3>
+          <div className="flex flex-col gap-1 my-3 text-center">
+            <h3 className="text-xl font-bold">Use of Information</h3>
             <p className="text-justify">
               <div className="font-semibold">Subtitle Generation:</div> Your
               files are used solely for generating subtitles. We do not access,
@@ -46,10 +58,10 @@ export function PrivacyMain() {
               pay-per-use basis, ensuring transparent and encrypted
               transactions.
             </p>
-          </section>
+          </div>
 
-          <section className="flex flex-col gap-2 my-3">
-            <h3 className="text-2xl font-bold">3. Data Security</h3>
+          <div className="flex flex-col gap-1 my-3 text-center">
+            <h3 className="text-xl font-bold">Data Security</h3>
             <p className="text-justify">
               <div className="font-semibold">Encryption:</div> We apply
               encryption methods for data in transit and at rest, especially for
@@ -60,10 +72,10 @@ export function PrivacyMain() {
               Files are stored on AWS S3, which complies with industry standards
               for data protection and security.
             </p>
-          </section>
+          </div>
 
-          <section className="flex flex-col gap-2 my-3">
-            <h3 className="text-2xl font-bold">4. User Rights</h3>
+          <div className="flex flex-col gap-1 my-3 text-center">
+            <h3 className="text-xl font-bold">User Rights</h3>
             <p className="text-justify">
               <div className="font-semibold">Access and Deletion:</div> You have
               the right to request access to or deletion of your stored files.
@@ -73,38 +85,36 @@ export function PrivacyMain() {
               <div className="font-semibold">Data Portability:</div> Users may
               download subtitle files in SRT and VTT formats.
             </p>
-          </section>
+          </div>
 
-          <section className="flex flex-col gap-2 my-3">
-            <h3 className="text-2xl font-bold">
-              5. Data Sharing and Disclosure
-            </h3>
+          <div className="flex flex-col gap-1 my-3 text-center">
+            <h3 className="text-xl font-bold">Data Sharing and Disclosure</h3>
             <p className="text-justify">
               We do not sell or share your data with third parties for marketing
               purposes. Limited data may be shared as required for legal
               purposes or in compliance with regulatory authorities.
             </p>
-          </section>
+          </div>
 
-          <section className="flex flex-col gap-2 my-3">
-            <h3 className="text-2xl font-bold">
-              6. Changes to this Privacy Policy
+          <div className="flex flex-col gap-1 my-3 text-center">
+            <h3 className="text-xl font-bold">
+              Changes to this Privacy Policy
             </h3>
             <p className="text-justify">
               We may update this Privacy Policy as needed. Users will be
               notified of any significant changes through our platform.
             </p>
-          </section>
-
-          <section className="flex flex-col gap-2 my-3">
-            <h3 className="text-lg font-semibold text-center">Contact Us</h3>
-            <p className="text-justify">
-              If you have any questions about this Privacy Policy, please
-              contact us at [Contact Information].
-            </p>
-          </section>
-        </div>
-      </main>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-1 my-3 text-center">
+          <h3 className="text-lg font-semibold text-center">Contact Us</h3>
+          <p className="text-justify">
+            If you have any questions about this Privacy Policy, please contact
+            us at{" "}
+            <span className="font-semibold underline">{`sahiltiwaskar2003@gmail.com`}</span>
+          </p>
+        </CardFooter>
+      </Card>
     </>
   );
 }
