@@ -4,7 +4,7 @@ import prisma from '@/lib/db';
 // const AWS = require('aws-sdk');
 import TranscribeService from 'aws-sdk/clients/transcribeservice';
 
-const CLOUDFRONT_URL = process.env.CLOUDFRONT_URL;
+const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL;
 
 const S3_BUCKET = process.env.AWS_BUCKET_NAME;
 const transcribeService = new TranscribeService({
