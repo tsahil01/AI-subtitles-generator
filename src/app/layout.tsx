@@ -33,7 +33,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextTopLoader
-        color="black"
+        color="purple"
         />
         <Providers>{children}</Providers>
         <Toaster />

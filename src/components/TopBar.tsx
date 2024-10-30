@@ -1,3 +1,5 @@
+"use client"
+
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -54,7 +56,7 @@ export function TopBar() {
             </Link>
             <Link
               className="text-sm font-medium hover:underline underline-offset-4"
-              href="#pricing"
+              href="/pricing"
             >
               Pricing
             </Link>
