@@ -27,8 +27,6 @@ export async function saveToS3(formData: FormData, presignedUrl: string, fileNam
         }
         if (dbSave !== null) {
             console.log("File saved to database");
-            // @ts-ignore
-            // await processFile(key.toString(), dbSave.id);
             console.log("Transcription job awaited");
         }
         console.log("Uploaded Url: ", formData.get("key"));

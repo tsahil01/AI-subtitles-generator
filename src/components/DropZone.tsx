@@ -290,6 +290,15 @@ function UploadDialog({
                     <SelectItem value="hindi">Hindi</SelectItem>
                     <SelectItem value="japanese">Japanese</SelectItem>
                     <SelectItem value="spanish">Spanish</SelectItem>
+                    <SelectItem value="tamil">Tamil</SelectItem>
+                    <SelectItem value="telugu">Telugu</SelectItem>
+                    <SelectItem value="kannada">Kannada</SelectItem>
+                    <SelectItem value="malayalam">Malayalam</SelectItem>
+                    <SelectItem value="bengali">Bengali</SelectItem>
+                    <SelectItem value="gujarati">Gujarati</SelectItem>
+                    <SelectItem value="marathi">Marathi</SelectItem>
+                    <SelectItem value="punjabi">Punjabi</SelectItem>
+                    <SelectItem value="urdu">Urdu</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

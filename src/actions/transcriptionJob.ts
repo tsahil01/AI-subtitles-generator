@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from '@/lib/db';
+import { LanguageCodeEnum } from '@/lib/types';
 // const AWS = require('aws-sdk');
 import TranscribeService from 'aws-sdk/clients/transcribeservice';
 
@@ -38,7 +39,7 @@ export async function subtitleDBCall(fileNamePath: string, fileDbId: string, sta
 
 }
 
-export async function processFile(fileNamePath: string, fileDbId: string) {
+export async function processFile(fileNamePath: string, fileDbId: string, language?: LanguageCodeEnum) {
   const user = fileNamePath.split('/')[0];
   const jobName = user + '-' + Date.now();
 
@@ -55,7 +56,7 @@ export async function processFile(fileNamePath: string, fileDbId: string) {
   const params = {
     TranscriptionJobName: jobName,
     // english language code
-    LanguageCode: 'en-IN',
+    LanguageCode: language || LanguageCodeEnum.ENGLISH,
     MediaFormat: mediaFormat,
     Media: {
       MediaFileUri: `s3://${S3_BUCKET}/${fileNamePath}`,

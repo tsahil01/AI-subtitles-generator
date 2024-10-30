@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, File as FileType } from "@/lib/types";
+import { User, File as FileType, LanguageCodeEnum } from "@/lib/types";
 import { userAtom } from "@/atoms/userAtom/userAtom";
 import { checkTranscriptionJob, processFile } from "@/actions/transcriptionJob";
 import React, { useState } from "react";
@@ -81,7 +81,11 @@ export default function FilesTable() {
       };
     });
 
-    await processFile(currentFile?.key || "", currentFile?.id || "");
+    if (currentFile) {
+      // Capitalize all letters - "english" -> "ENGLISH"
+      const audioLanguage = currentFile.audioLanguage.toUpperCase();
+      await processFile(currentFile.key, currentFile.id, LanguageCodeEnum[audioLanguage as keyof typeof LanguageCodeEnum]);
+    }
     console.log("Transcription job set to IN_PROGRESS");
   };
 

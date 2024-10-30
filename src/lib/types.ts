@@ -40,3 +40,20 @@ export interface SubtitlesFile {
     transcriptionJobName: string;
     transcriptionStatus: string; // Consider using specific enums if applicable
 }
+
+export enum LanguageCodeEnum {
+    ENGLISH = "en-US",
+    SPANISH = "es-US",
+    JAPANESE = "ja-JP",
+    HINDI = "hi-IN",
+    TAMIL = "ta-IN",
+    TELUGU = "te-IN",
+    KANNADA = "kn-IN",
+    MALAYALAM = "ml-IN",
+    BENGALI = "bn-IN",
+    GUJARATI = "gu-IN",
+    MARATHI = "mr-IN",
+    PUNJABI = "pa-IN",
+    URDU = "ur-IN",
+  }
+  
