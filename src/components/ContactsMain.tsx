@@ -5,17 +5,38 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { contact } from "@/actions/contact";
+import { toast } from "@/hooks/use-toast";
 
 export function ContactsMain() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    setSubmitting(true);
     event.preventDefault();
-    console.log({ name, email, subject, message });
-    
+    const response = await contact(name, email, subject, message);
+    if (response) {
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+      setSubmitting(false);
+      toast({
+        title: "Success",
+        description: "Your message has been sent",
+      });
+    } else {
+      setSubmitting(false);
+      toast({
+        title: "Error",
+        description: "An error occurred while sending your message",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -27,8 +48,8 @@ export function ContactsMain() {
           </h2>
           <p className="text-xs text-muted-foreground sm:text-lg flex flex-col">
             <span>
-                We are here to help you with any questions you may have. Reach out
-                to us and we will respond as soon as we can.
+              We are here to help you with any questions you may have. Reach out
+              to us and we will respond as soon as we can.
             </span>
           </p>
         </div>
@@ -37,7 +58,7 @@ export function ContactsMain() {
             <CardTitle>Contact Us</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-semibold">
                   Name
@@ -47,7 +68,9 @@ export function ContactsMain() {
                   id="name"
                   name="name"
                   placeholder="John Doe"
-                  required = {true}
+                  required={true}
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -59,7 +82,9 @@ export function ContactsMain() {
                   id="email"
                   name="email"
                   placeholder="email"
-                  required = {true}
+                  required={true}
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -71,7 +96,9 @@ export function ContactsMain() {
                   id="subject"
                   name="subject"
                   placeholder="subject"
-                  required = {true}
+                  required={true}
+                  value={subject}
+                  onChange={(event) => setSubject(event.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -83,11 +110,15 @@ export function ContactsMain() {
                   name="message"
                   className="w-full p-2 border border-gray-300 rounded-md"
                   placeholder="message"
-                  required = {true}
+                  required={true}
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
                 />
               </div>
               <div className="flex justify-center">
-                <Button type="submit">Submit</Button>
+                <Button type="submit" disabled={submitting ? true : false}>
+                  {submitting ? "Submitting..." : "Submit"}
+                </Button>
               </div>
             </form>
           </CardContent>
