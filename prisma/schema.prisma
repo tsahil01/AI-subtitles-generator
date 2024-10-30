@@ -20,6 +20,7 @@ model User {
   updatedAt   DateTime  @updatedAt
   payments    Payment[]
   files       File[]
+  contact     contact[]
 }
 
 model Payment {
@@ -71,4 +72,15 @@ enum transcriptionStatus {
   SUCCESS
   FAILED
   IN_PROGRESS
+}
+
+model contact {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])  
 }
