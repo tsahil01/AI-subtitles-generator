@@ -10,7 +10,7 @@ import {
 export function PrivacyMain() {
   return (
     <>
-      <Card className="container mx-auto px-4 max-w-4xl mt-5 border-4 border-purple-900">
+      <Card className="container mx-auto px-4 max-w-4xl mt-5 md:border-4 border-0 md:border-purple-900">
         <CardHeader>
           <CardTitle className="text-2xl font-bold md:text-4xl text-center">
             Privacy Policy

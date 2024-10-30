@@ -50,7 +50,7 @@ export function TopBar() {
             </Link>
             <Link
               className="text-sm font-medium hover:underline underline-offset-4"
-              href="#features"
+              href="/#features"
             >
               Features
             </Link>
@@ -62,7 +62,7 @@ export function TopBar() {
             </Link>
             <Link
               className="text-sm font-medium hover:underline underline-offset-4"
-              href="#contact"
+              href="/contact"
             >
               Contact
             </Link>
