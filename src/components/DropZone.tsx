@@ -1,6 +1,6 @@
-import { UploadCloudIcon } from "lucide-react";
+import { Loader2, UploadCloudIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardTitle } from "./ui/card";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -191,7 +191,7 @@ function UploadDialog({
         SystemProgram.transfer({
           fromPubkey: wallet.publicKey,
           toPubkey: new PublicKey(sentTo),
-          lamports: 0.05 * LAMPORTS_PER_SOL,
+          lamports: 0 * LAMPORTS_PER_SOL, // currently 0 for first 100 users
         })
       );
 
@@ -234,6 +234,8 @@ function UploadDialog({
           title: "Success",
           description: "File uploaded successfully",
         });
+        // Update the dashboard by refreshing the page
+        window.location.reload();
       } else {
         console.error("S3 Upload Error:", uploadResponse);
         setMessage("Upload failed.");
@@ -305,16 +307,27 @@ function UploadDialog({
         </DialogContent>
       </Dialog>
 
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <Drawer
+        open={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
+        onClose={() => window.location.reload()}
+      >
         <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle className="md:text-3xl text-xl">
-              {message || "Processing your upload..."}
-            </DrawerTitle>
-            <DrawerDescription>
-              Do not close this window until the process is complete.
-            </DrawerDescription>
-          </DrawerHeader>
+          <div className="mx-auto w-full max-w-sm">
+            <DrawerHeader>
+              <DrawerTitle className="text-center md:text-3xl text-xl">
+                Upload Progress
+              </DrawerTitle>
+              <DrawerDescription className="text-center">
+                {message || "Processing your upload..."}
+              </DrawerDescription>
+            <div className="pb-0">
+              <div className="flex items-center justify-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </div>
+            </div>
+            </DrawerHeader>
+          </div>
         </DrawerContent>
       </Drawer>
     </>

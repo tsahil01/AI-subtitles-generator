@@ -31,10 +31,12 @@ export function TopBar() {
   return (
     <header className="w-full">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Mic className="w-8 h-8" />
-          <h1 className="text-xl font-bold">AI Subtitler</h1>
-        </div>
+        <Link href="/">
+          <div className="flex items-center space-x-2">
+            <Mic className="w-8 h-8" />
+            <h1 className="text-xl font-bold">AI Subtitler</h1>
+          </div>
+        </Link>
 
         <div className="flex items-center gap-8">
           <nav className="hidden md:flex items-center space-x-4">
@@ -65,10 +67,15 @@ export function TopBar() {
           </nav>
           {status === "loading" && <Loader2 className="animate-spin h-6 w-6" />}
 
-          {!publicKey && status!= "loading"  && <WalletMultiButton />}
-          {publicKey && status!= "loading"  && !session && (
+          {!publicKey && status != "loading" && <WalletMultiButton />}
+          {publicKey && status != "loading" && !session && (
             <>
-              <Button size={'lg'} className="hidden md:flex" onClick={handleSignIn} disabled={isLoading}>
+              <Button
+                size={"lg"}
+                className="hidden md:flex"
+                onClick={handleSignIn}
+                disabled={isLoading}
+              >
                 {isLoading ? "Signing In..." : "Sign In with Solana"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
