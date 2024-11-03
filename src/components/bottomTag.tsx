@@ -3,7 +3,7 @@ import { Network } from "lucide-react"; // Ensure lucide-react is installed
 
 export function BottomTag() {
   return (
-    <div className="fixed bottom-4 right-4 flex items-center z-20 bg-blue-600 text-white rounded-full px-4 py-2 shadow-md">
+    <div className="fixed bottom-10 left-4 flex items-center z-20 bg-blue-600 text-white rounded-full px-4 py-2 shadow-md">
       <p className="text-sm flex items-center">
         Currently on Beta (
         <span className="flex items-center ml-1 mr-1 text-yellow-300">
