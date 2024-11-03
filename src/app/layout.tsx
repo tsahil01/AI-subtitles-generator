@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 import { Toaster } from "@/components/ui/toaster";
 import NextTopLoader from 'nextjs-toploader';
+import { BottomTag } from "@/components/bottomTag";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,6 +38,7 @@ export default async function RootLayout({
         />
         <Providers>{children}</Providers>
         <Toaster />
+        <BottomTag />
       </body>
     </html>
   );
