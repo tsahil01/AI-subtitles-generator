@@ -1,7 +1,6 @@
 "use server";
 
 import { saveToDb } from "./saveToDb";
-import { processFile } from "./transcriptionJob";
 
 const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL;
 

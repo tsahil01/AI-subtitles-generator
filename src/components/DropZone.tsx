@@ -228,6 +228,7 @@ function UploadDialog({
         txnID
       );
       console.log("Outside saveToS3...");
+      console.log("Upload response: ", uploadResponse);
       
       if (uploadResponse) {
         console.log(uploadResponse);
