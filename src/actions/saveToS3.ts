@@ -6,6 +6,14 @@ import { processFile } from "./transcriptionJob";
 const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL;
 
 export async function saveToS3(formData: FormData, presignedUrl: string, fileName: string, audioType: string, transactionId: string) {
+    console.log("Inside saveToS3...");
+    console.log("formData: ", formData);
+    console.log("presignedUrl: ", presignedUrl);
+    console.log("fileName: ", fileName);
+    console.log("audioType: ", audioType);
+    console.log("transactionId: ", transactionId);
+
+    console.log("Fetching presignedUrl...");
     const response = await fetch(presignedUrl, {
         method: "POST",
         body: formData,

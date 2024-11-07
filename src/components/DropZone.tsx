@@ -219,6 +219,7 @@ function UploadDialog({
       console.log("Half transaction done: ", halfTnx);
 
       setMessage("Uploading file to S3...");
+      console.log("Uploading file to S3 initiated...");
       const uploadResponse = await saveToS3(
         newFormData,
         url,
@@ -226,6 +227,8 @@ function UploadDialog({
         audio,
         txnID
       );
+      console.log("Outside saveToS3...");
+      
       if (uploadResponse) {
         console.log(uploadResponse);
         setMessage("Upload successful!");
