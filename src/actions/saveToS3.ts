@@ -11,6 +11,8 @@ export async function saveToS3(formData: FormData, presignedUrl: string, fileNam
         body: formData,
     });
 
+    console.log("S3 Upload Response: ", response);
+
     if (response.ok) {
         const key = formData.get("key") || "unknown";
         console.log("Key: ", key);
