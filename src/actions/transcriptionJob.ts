@@ -2,13 +2,12 @@
 
 import prisma from '@/lib/db';
 import { LanguageCodeEnum } from '@/lib/types';
-// const AWS = require('aws-sdk');
-import TranscribeService from 'aws-sdk/clients/transcribeservice';
+import { TranscribeClient, StartTranscriptionJobCommand, GetTranscriptionJobCommand } from "@aws-sdk/client-transcribe";
 
 const CLOUDFRONT_URL = process.env.NEXT_PUBLIC_CLOUDFRONT_URL;
-
 const S3_BUCKET = process.env.AWS_BUCKET_NAME;
-const transcribeService = new TranscribeService({
+
+const transcribeService = new TranscribeClient({
   region: `${process.env.AWS_REGION}`,
 });
 
@@ -56,7 +55,7 @@ export async function processFile(fileNamePath: string, fileDbId: string, langua
   const params = {
     TranscriptionJobName: jobName,
     // english language code
-    LanguageCode: language || LanguageCodeEnum.ENGLISH,
+    LanguageCode: language,
     MediaFormat: mediaFormat,
     Media: {
       MediaFileUri: `s3://${S3_BUCKET}/${fileNamePath}`,
@@ -76,8 +75,12 @@ export async function processFile(fileNamePath: string, fileDbId: string, langua
   };
 
   try {
-    await transcribeService.startTranscriptionJob(params).promise();
+    // @ts-ignore
+    const command = new StartTranscriptionJobCommand(params);
+
+    await transcribeService.send(command);
     console.log(`Started transcription job: ${jobName}`);
+
     // do db update here
     const saveTranscription = await prisma.subtitlesFile.update({
       where: {
@@ -108,7 +111,13 @@ export const checkTranscriptionJob = async (jobName: string) => {
   const pollInterval = 3000; // Poll every 5 seconds
 
   while (true) {
-    const data = await transcribeService.getTranscriptionJob(params).promise() as any;
+    const command = new GetTranscriptionJobCommand(params);
+    const data = await transcribeService.send(command);
+    if (!data.TranscriptionJob) {
+      console.error("Transcription job data is undefined");
+      return { status: 'FAILED' };
+    }
+
     const jobStatus = data.TranscriptionJob.TranscriptionJobStatus;
     console.log("Transcription job status:", jobStatus);
 
@@ -119,7 +128,7 @@ export const checkTranscriptionJob = async (jobName: string) => {
       });
 
       // Get the transcript file URI
-      const transcriptFileUri = data.TranscriptionJob.Transcript.TranscriptFileUri;
+      const transcriptFileUri = data.TranscriptionJob.Transcript?.TranscriptFileUri;
       console.log("Transcript file URI:", transcriptFileUri);
 
       return { status: 'COMPLETED', uri: transcriptFileUri };
