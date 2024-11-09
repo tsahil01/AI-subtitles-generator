@@ -66,7 +66,7 @@ export default function FilesTable() {
                 {
                   id: file.subtitles[0]?.id || "",
                   name: file.subtitles[0]?.name || "",
-                  url: file.subtitles[0]?.url || "",
+                  url: file.subtitles[0]?.url ?? "",
                   fileId: file.id,
                   transcriptionJobName:
                     file.subtitles[0]?.transcriptionJobName || "",
@@ -114,7 +114,7 @@ export default function FilesTable() {
                       ...file.subtitles[0],
                       transcriptionStatus: "SUCCESS",
                       transcription: "This is a test transcription",
-                      url: response.uri, // Transcript file URI
+                      url: response.uri ?? "", // Transcript file URI
                     },
                   ],
                 };
