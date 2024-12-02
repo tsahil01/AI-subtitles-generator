@@ -44,15 +44,15 @@ export default function RootLayout({
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <div className="flex flex-col min-h-screen">
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 px-4 text-center">
+            {/* <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 px-4 text-center">
               <div className="container mx-auto flex items-center justify-center space-x-2 animate-pulse">
                 <Sparkles className="w-5 h-5" />
-                <span className="font-semibold">
+                <span className="md:text-base md:font-semibold text-sm">
                   Currently free for first 100 customers. Hurry up!
                 </span>
                 <Sparkles className="w-5 h-5" />
               </div>
-            </div>
+            </div> */}
             <main className="">
               {children}
             </main>

@@ -38,7 +38,7 @@ export default async function RootLayout({
         />
         <Providers>{children}</Providers>
         <Toaster />
-        <BottomTag />
+        {/* <BottomTag /> */}
       </body>
     </html>
   );

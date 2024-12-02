@@ -35,8 +35,8 @@ export function TopBar() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center space-x-2">
-            <Mic className="w-8 h-8" />
-            <h1 className="text-xl font-bold">AI Subtitler</h1>
+            <Mic className="md:w-8 md:h-8" />
+            <h1 className="md:text-xl font-bold">AI Subtitler</h1>
           </div>
         </Link>
 
